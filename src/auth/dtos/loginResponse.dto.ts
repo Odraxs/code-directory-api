@@ -1,7 +1,7 @@
 export class LoginResponseDto {
-  id: string;
+  token: string;
 
-  constructor(id: string) {
-    this.id = id;
+  constructor(token: string) {
+    this.token = token;
   }
 }
