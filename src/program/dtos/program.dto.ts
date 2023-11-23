@@ -22,7 +22,7 @@ export class ProgramDto {
 
   @IsNotEmpty()
   @IsString()
-  @MaxLength(2)
+  @MaxLength(120)
   name: string;
 
   @IsNotEmpty()
