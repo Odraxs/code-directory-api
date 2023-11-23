@@ -1,9 +1,13 @@
-import { IsBase64, IsEnum, IsNotEmpty } from 'class-validator';
+import {
+  IsBase64,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  MaxLength,
+} from 'class-validator';
+import { AllowedProgrammingLanguages } from '../allowedProgrammingLanguages';
 
-enum AllowedProgrammingLanguages {
-  JS = 'javascript',
-  PT = 'python',
-}
 /**
  * params
  * @userId
@@ -12,9 +16,17 @@ enum AllowedProgrammingLanguages {
  */
 export class ProgramDto {
   @IsNotEmpty()
+  @IsString()
+  @IsUUID()
   userId: string;
 
   @IsNotEmpty()
+  @IsString()
+  @MaxLength(2)
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
   @IsBase64()
   executable: string;
 
