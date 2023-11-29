@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/common/services/prisma.service';
+import { PrismaService } from '../common/services/prisma.service';
 import { SignupDto } from './dtos/signup.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -59,16 +59,18 @@ export class AuthService {
         name: true,
       },
     });
-    if (
-      user === null ||
-      !bcrypt.compareSync(loginDto.password, user.passwordHash)
-    )
-      throw new UnauthorizedException();
+
+    const validatePassword = await bcrypt.compareSync(
+      loginDto.password,
+      user!.passwordHash,
+    );
+
+    if (user === null || !validatePassword) throw new UnauthorizedException();
 
     const payload: JwtPayload = {
       id: user.id,
       email: user.email,
-      name: user.name,
+      name: user.name!,
     };
     return this.jwtService.signAsync(payload);
   }
