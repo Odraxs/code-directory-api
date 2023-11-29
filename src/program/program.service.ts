@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/common/services/prisma.service';
+import { PrismaService } from '../common/services/prisma.service';
 import { ProgramDto } from './dtos/program.dto';
 import { ProgramExecFactory } from './programExec/ProgramExecFactory';
 import { IProgramExec } from './programExec/IProgramExec';

@@ -7,14 +7,13 @@ import {
   Param,
   UseGuards,
   Body,
-  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UserResponseDto } from './dtos/userResponse.dto';
 import { ProgramDto } from '../program/dtos/program.dto';
 import { ProgramService } from '../program/program.service';
-import { ProgramExecResultDto } from 'src/program/dtos/programExecResult.dto';
+import { ProgramExecResultDto } from '../program/dtos/programExecResult.dto';
 
 @Controller('user')
 export class UserController {
@@ -28,7 +27,7 @@ export class UserController {
   @UseGuards(AuthGuard())
   async getUser(@Param('id') id: string): Promise<UserResponseDto> {
     const { email, name } = await this.userService.getUserById(id);
-    return new UserResponseDto(email, name);
+    return new UserResponseDto(email, name!);
   }
 
   @Post('program')
@@ -37,12 +36,7 @@ export class UserController {
   async postProgram(
     @Body() programDto: ProgramDto,
   ): Promise<ProgramExecResultDto> {
-    const user = await this.userService.getUserById(programDto.userId);
-    if (!user) {
-      throw new NotFoundException(
-        `User with id: ${programDto.userId} not found`,
-      );
-    }
+    await this.userService.getUserById(programDto.userId);
     return await this.programService.storeExecuteProgram(programDto);
   }
 }
