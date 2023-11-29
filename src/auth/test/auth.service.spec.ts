@@ -8,6 +8,7 @@ import config from '../../common/config';
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import mockUser from '../../../test/mockUser';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -16,16 +17,6 @@ describe('AuthService', () => {
   let spyUserService: UserService;
   let spyJwtService: JwtService;
   let spyPrismaService: DeepMockProxy<PrismaService>;
-
-  const date = new Date();
-  const user = {
-    id: 'fcd2fa2d-f5f4-4ed0-9d75-f3ca6ddd4c21',
-    name: 'John',
-    email: 'john@doe.com',
-    passwordHash: 'hashedPassword',
-    createdAt: date,
-    updatedAt: date,
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -70,8 +61,8 @@ describe('AuthService', () => {
     };
 
     it('should create a new user', async () => {
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue(user.passwordHash);
-      spyPrismaService.user.create.mockResolvedValue(user);
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue(mockUser.passwordHash);
+      spyPrismaService.user.create.mockResolvedValue(mockUser);
 
       await service.signup(signUpData);
       expect(spyPrismaService.user.create).toHaveBeenCalledTimes(1);
@@ -79,7 +70,7 @@ describe('AuthService', () => {
         data: {
           name: signUpData.name,
           email: signUpData.email,
-          passwordHash: user.passwordHash,
+          passwordHash: mockUser.passwordHash,
         },
         select: null,
       });
@@ -110,14 +101,14 @@ describe('AuthService', () => {
     it('should allow an user to login', async () => {
       jest.spyOn(bcrypt, 'compareSync').mockResolvedValue(true);
       jest.spyOn(spyJwtService, 'signAsync').mockResolvedValue(testJWT);
-      spyPrismaService.user.findFirst.mockResolvedValue(user);
+      spyPrismaService.user.findFirst.mockResolvedValue(mockUser);
 
       expect(await service.login(loginInfo)).toStrictEqual(testJWT);
       expect(spyPrismaService.user.findFirst).toHaveBeenCalledTimes(1);
     });
 
     it('should retrieve an unauthorized error', async () => {
-      spyPrismaService.user.findFirst.mockResolvedValue(user);
+      spyPrismaService.user.findFirst.mockResolvedValue(mockUser);
       jest.spyOn(bcrypt, 'compareSync').mockResolvedValue(false);
 
       await expect(service.login(loginInfo)).rejects.toThrow(
@@ -128,13 +119,13 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     const payload = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
+      id: mockUser.id,
+      name: mockUser.name,
+      email: mockUser.email,
     };
     it('should return a valid user', async () => {
-      spyPrismaService.user.findUnique.mockResolvedValue(user);
-      expect(await service.validateUser(payload)).toStrictEqual(user);
+      spyPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      expect(await service.validateUser(payload)).toStrictEqual(mockUser);
     });
 
     it('should throw an unauthorized error', async () => {
