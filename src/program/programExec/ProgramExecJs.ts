@@ -28,7 +28,7 @@ export class ProgramExecJs implements IProgramExec {
   async runExecutable(programDto: ProgramDto): Promise<string> {
     const { filePath } = this.fetchFilePath(programDto);
     try {
-      const result = await this.executeCommand('node', [filePath]);
+      const result = (await this.executeCommand('node', [filePath])).trim();
       return result;
     } catch (error) {
       throw error;
@@ -50,7 +50,7 @@ export class ProgramExecJs implements IProgramExec {
       shell: true,
     });
     if (process.error) {
-      throw new Error('a');
+      throw new Error();
     }
 
     const stdout = process.stdout?.toString();
