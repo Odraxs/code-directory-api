@@ -1,11 +1,8 @@
 import { IProgramExec } from './IProgramExec';
 import { ProgramDto } from '../dtos/program.dto';
-import { programExtensions } from '../programExtensions';
 import { spawnSync } from 'child_process';
 import * as fs from 'fs';
-import * as path from 'path';
-
-const BASE_DIRECTORY: string = 'uploadedPrograms';
+import { fetchFilePath } from './utils';
 
 export class ProgramExecJs implements IProgramExec {
   processExecutable(programDto: ProgramDto): void {
@@ -14,7 +11,7 @@ export class ProgramExecJs implements IProgramExec {
         programDto.executable,
         'base64',
       ).toString('utf-8');
-      const { filePath, directoryPath } = this.fetchFilePath(programDto);
+      const { filePath, directoryPath } = fetchFilePath(programDto);
       if (!fs.existsSync(directoryPath)) {
         fs.mkdirSync(directoryPath);
       }
@@ -26,11 +23,12 @@ export class ProgramExecJs implements IProgramExec {
   }
 
   async runExecutable(programDto: ProgramDto): Promise<string> {
-    const { filePath } = this.fetchFilePath(programDto);
+    const { filePath } = fetchFilePath(programDto);
     try {
       const result = (await this.executeCommand('node', [filePath])).trim();
       return result;
     } catch (error) {
+      fs.rmSync(filePath, { recursive: true, force: true });
       throw error;
     }
   }
@@ -61,15 +59,5 @@ export class ProgramExecJs implements IProgramExec {
     } else {
       throw new Error(stderr);
     }
-  }
-
-  private fetchFilePath({ userId, name }) {
-    const rootPath = path.resolve(__dirname, '../../..');
-    const directoryPath = path.join(rootPath, BASE_DIRECTORY, userId);
-    const fileName: string = `${name}.${programExtensions.JS}`;
-    return {
-      filePath: path.join(directoryPath, fileName),
-      directoryPath: directoryPath,
-    };
   }
 }

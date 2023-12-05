@@ -37,6 +37,6 @@ export class UserController {
     @Body() programDto: ProgramDto,
   ): Promise<ProgramExecResultDto> {
     await this.userService.getUserById(programDto.userId);
-    return await this.programService.storeExecuteProgram(programDto);
+    return await this.programService.processProgram(programDto);
   }
 }

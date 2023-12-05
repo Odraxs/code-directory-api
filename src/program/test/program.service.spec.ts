@@ -3,12 +3,12 @@ import { PrismaService } from '../../common/services/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AllowedProgrammingLanguages } from '../allowedProgrammingLanguages';
 import { ProgramService } from '../program.service';
-import { BadRequestException } from '@nestjs/common';
 import { ProgramExecFactory } from '../programExec/ProgramExecFactory';
 import mockUser from '../../../test/mockUser';
-import * as fs from 'fs';
-import * as path from 'path';
 import { ProgramExecResultDto } from '../dtos/programExecResult.dto';
+import { CodeCompilationException } from '../exceptions/codeCompilation.exception';
+import * as path from 'path';
+import * as fs from 'fs';
 
 describe('UserService', () => {
   const BASE_DIRECTORY: string = 'uploadedPrograms';
@@ -73,7 +73,7 @@ describe('UserService', () => {
       );
 
       spyPrismaService.program.create.mockResolvedValue(program);
-      expect(await service.storeExecuteProgram(program)).toStrictEqual(result);
+      expect(await service.processProgram(program)).toStrictEqual(result);
     });
 
     it('should retrieve a bad request exception', async () => {
@@ -91,8 +91,8 @@ describe('UserService', () => {
         updatedAt: date,
       };
 
-      await expect(service.storeExecuteProgram(program)).rejects.toThrow(
-        BadRequestException,
+      await expect(service.processProgram(program)).rejects.toThrow(
+        CodeCompilationException,
       );
     });
   });
